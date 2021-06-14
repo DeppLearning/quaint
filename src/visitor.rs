@@ -992,6 +992,10 @@ pub trait Visitor<'a> {
             FunctionType::JsonExtract(json_extract) => {
                 self.visit_json_extract(json_extract)?;
             }
+            FunctionType::Date(date) => {
+                self.write("DATE")?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*date.value))?;
+            }
         };
 
         if let Some(alias) = fun.alias {

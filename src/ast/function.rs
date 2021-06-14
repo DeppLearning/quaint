@@ -12,6 +12,7 @@ mod row_number;
 mod row_to_json;
 mod sum;
 mod upper;
+mod date;
 
 pub use aggregate_to_string::*;
 pub use average::*;
@@ -27,6 +28,7 @@ pub use row_number::*;
 pub use row_to_json::*;
 pub use sum::*;
 pub use upper::*;
+pub use date::*;
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -55,6 +57,7 @@ pub(crate) enum FunctionType<'a> {
     Coalesce(Coalesce<'a>),
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonExtract(JsonExtract<'a>),
+    Date(Date<'a>)
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -85,5 +88,6 @@ function!(
     Upper,
     Minimum,
     Maximum,
-    Coalesce
+    Coalesce,
+    Date
 );
