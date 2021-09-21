@@ -996,6 +996,10 @@ pub trait Visitor<'a> {
                 self.write("DATE")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_expression(*date.value))?;
             }
+            FunctionType::Text(text) => {
+                self.write("TEXT")?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*text.value))?;
+            }
         };
 
         if let Some(alias) = fun.alias {
