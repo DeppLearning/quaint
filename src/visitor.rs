@@ -1000,6 +1000,10 @@ pub trait Visitor<'a> {
                 self.write("TEXT")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_expression(*text.value))?;
             }
+            FunctionType::Any(any) => {
+                self.write("ANY")?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*any.value))?;
+            }
         };
 
         if let Some(alias) = fun.alias {

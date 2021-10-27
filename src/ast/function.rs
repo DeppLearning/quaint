@@ -14,6 +14,7 @@ mod sum;
 mod upper;
 mod date;
 mod text;
+mod any;
 
 pub use aggregate_to_string::*;
 pub use average::*;
@@ -31,6 +32,7 @@ pub use sum::*;
 pub use upper::*;
 pub use date::*;
 pub use text::*;
+pub use any::*;
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -60,7 +62,8 @@ pub(crate) enum FunctionType<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     JsonExtract(JsonExtract<'a>),
     Date(Date<'a>),
-    Text(Text<'a>)
+    Text(Text<'a>),
+    Any(Any<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -93,5 +96,6 @@ function!(
     Maximum,
     Coalesce,
     Date,
-    Text
+    Text,
+    Any
 );
