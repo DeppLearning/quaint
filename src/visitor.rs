@@ -437,6 +437,12 @@ pub trait Visitor<'a> {
                 se.write(" % ")?;
                 se.visit_expression(right)
             }),
+            #[cfg(feature = "postgresql")]
+            SqlOp::TsMatch(left, right) => self.surround_with("(", ")", |ref mut se| {
+                se.visit_expression(left)?;
+                se.write(" @@ ")?;
+                se.visit_expression(right)
+            }),
         }
     }
 
@@ -864,6 +870,7 @@ pub trait Visitor<'a> {
                 JsonCompare::ArrayNotEndsInto(left, right) => self.visit_json_array_ends_into(*left, *right, true),
                 JsonCompare::TypeEquals(left, json_type) => self.visit_json_type_equals(*left, json_type),
             },
+            Compare::TsMatch(left, right) => self.visit_operation(SqlOp::TsMatch(*left, *right)),
         }
     }
 
@@ -1003,6 +1010,16 @@ pub trait Visitor<'a> {
             FunctionType::Any(any) => {
                 self.write("ANY")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_expression(*any.value))?;
+            }
+            #[cfg(feature = "postgresql")]
+            FunctionType::ToTsquery(expr) => {
+                self.write("to_tsquery")?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*expr.expression))?;
+            }
+            #[cfg(feature = "postgresql")]
+            FunctionType::ToTsvector(expr) => {
+                self.write("to_tsvector")?;
+                self.surround_with("(", ")", |ref mut s| s.visit_expression(*expr.expression))?;
             }
         };
 

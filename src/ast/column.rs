@@ -22,6 +22,10 @@ pub enum TypeFamily {
     DateTime,
     Decimal(Option<(u8, u8)>),
     Bytes(Option<TypeDataLength>),
+    #[cfg(feature = "postgresql")]
+    TsVector,
+    #[cfg(feature = "postgresql")]
+    TsQuery,
 }
 
 /// A column definition.

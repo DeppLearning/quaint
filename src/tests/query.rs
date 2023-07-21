@@ -642,6 +642,39 @@ async fn returning_insert(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "postgresql")]
+#[test_each_connector(tags("postgresql"))]
+async fn match_tsquery_against_tsvector(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id serial, val tsvector").await?;
+    let insert = Insert::single_into(&table)
+        .value("id", 2)
+        .value("val", to_tsvector("a dog jumps over a fat rat"));
+
+    api.conn().insert(Insert::from(insert)).await?;
+
+    let select = Select::from_table(&table)
+        .column(Column::from("id"))
+        .and_where(Compare::TsMatch(
+            Box::new(to_tsquery("dog").into()),
+            Box::new(col!("val")),
+        ));
+
+    let res = api.conn().select(select).await?;
+    assert_eq!(1, res.len());
+
+    let select = Select::from_table(&table)
+        .column(Column::from("id"))
+        .and_where(Compare::TsMatch(
+            Box::new(to_tsquery("cat").into()),
+            Box::new(col!("val")),
+        ));
+
+    let res = api.conn().select(select).await?;
+    assert_eq!(0, res.len());
+
+    Ok(())
+}
+
 #[cfg(all(feature = "mssql", feature = "bigdecimal"))]
 #[test_each_connector(tags("mssql"))]
 async fn returning_decimal_insert_with_type_defs(api: &mut dyn TestApi) -> crate::Result<()> {

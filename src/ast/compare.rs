@@ -47,6 +47,8 @@ pub enum Compare<'a> {
     #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
     // All json related comparators
     JsonCompare(JsonCompare<'a>),
+    #[cfg(feature = "postgresql")]
+    TsMatch(Box<Expression<'a>>, Box<Expression<'a>>),
 }
 
 #[derive(Debug, Clone, PartialEq)]
