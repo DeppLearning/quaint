@@ -642,6 +642,30 @@ async fn returning_insert(api: &mut dyn TestApi) -> crate::Result<()> {
     Ok(())
 }
 
+async fn invoke_stored_function(api: &mut dyn TestApi) -> crate::Result<()> {
+    let table = api.create_table("id serial, val int").await?;
+
+    let insert = Insert::single_into(&table).value("id", 1).value("val", 1);
+    api.conn().insert(Insert::from(insert)).await?;
+    let insert = Insert::single_into(&table).value("id", 2).value("val", 1);
+    api.conn().insert(Insert::from(insert)).await?;
+
+    let select = Select::from_table(&table).value(stored_function("sum", col!("val")).alias("sum"));
+
+    let res = api.conn().select(select).await?;
+    assert_eq!(1, res.len());
+
+    let row = res.get(0).unwrap();
+    assert_eq!(Some(2), row["sum"].as_i64());
+
+    // attempt invoking a non-existing function and fail
+    let select =
+        Select::from_table(&table).value(stored_function("fda33fcv9trehg083wnfigk5r0wg5wg54yh543yh45ygrfdh", ()));
+    api.conn().select(select).await.err().unwrap();
+
+    Ok(())
+}
+
 #[cfg(feature = "postgresql")]
 #[test_each_connector(tags("postgresql"))]
 async fn match_tsquery_against_tsvector(api: &mut dyn TestApi) -> crate::Result<()> {

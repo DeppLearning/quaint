@@ -1,4 +1,5 @@
 mod aggregate_to_string;
+mod any;
 mod average;
 mod coalesce;
 mod count;
@@ -11,15 +12,14 @@ mod minimum;
 mod row_number;
 #[cfg(all(feature = "json", feature = "postgresql"))]
 mod row_to_json;
+mod stored_function;
 mod sum;
+mod text;
 #[cfg(feature = "postgresql")]
 mod to_tsquery;
 #[cfg(feature = "postgresql")]
 mod to_tsvector;
 mod upper;
-
-mod any;
-mod text;
 
 pub use aggregate_to_string::*;
 pub use any::*;
@@ -35,6 +35,7 @@ pub use minimum::*;
 pub use row_number::*;
 #[cfg(all(feature = "json", feature = "postgresql"))]
 pub use row_to_json::*;
+pub use stored_function::*;
 pub use sum::*;
 pub use text::*;
 #[cfg(feature = "postgresql")]
@@ -43,7 +44,7 @@ pub use to_tsquery::*;
 pub use to_tsvector::*;
 pub use upper::*;
 
-use crate::ast::function::to_tsquery::ToTsquery;
+use crate::ast::function::{stored_function::StoredFunction, to_tsquery::ToTsquery};
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -79,6 +80,7 @@ pub(crate) enum FunctionType<'a> {
     Date(Date<'a>),
     Text(Text<'a>),
     Any(Any<'a>),
+    StoredFunction(StoredFunction<'a>),
 }
 
 impl<'a> Aliasable<'a> for Function<'a> {
@@ -117,5 +119,6 @@ function!(
     Coalesce,
     Date,
     Text,
-    Any
+    Any,
+    StoredFunction
 );

@@ -1021,6 +1021,21 @@ pub trait Visitor<'a> {
                 self.write("to_tsvector")?;
                 self.surround_with("(", ")", |ref mut s| s.visit_expression(*expr.expression))?;
             }
+            FunctionType::StoredFunction(func) => {
+                self.write(func.name)?;
+                self.surround_with("(", ")", |ref mut s| {
+                    let len = func.arguments.len();
+                    for (idx, expr) in func.arguments.into_iter().enumerate() {
+                        if let Err(err) = s.visit_expression(*expr) {
+                            return Err(err);
+                        }
+                        if len > 1 && idx < len - 1 {
+                            s.write(", ")?;
+                        }
+                    }
+                    Ok(())
+                })?;
+            }
         };
 
         if let Some(alias) = fun.alias {
