@@ -988,6 +988,20 @@ pub trait Visitor<'a> {
                     Ok(())
                 })?;
             }
+            FunctionType::Concat(concat) => {
+                self.write("CONCAT")?;
+                self.surround_with("(", ")", |s| {
+                    let len = concat.exprs.len();
+                    for (index, expr) in concat.exprs.into_iter().enumerate() {
+                        s.visit_expression(expr)?;
+                        if index < len - 1 {
+                            s.write(", ")?;
+                        }
+                    }
+
+                    Ok(())
+                })?;
+            }
             #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
             FunctionType::JsonExtract(json_extract) => {
                 self.visit_json_extract(json_extract)?;
