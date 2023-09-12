@@ -9,9 +9,6 @@ pub enum SqlOp<'a> {
     Mul(Expression<'a>, Expression<'a>),
     Div(Expression<'a>, Expression<'a>),
     Rem(Expression<'a>, Expression<'a>),
-    #[cfg(feature = "postgresql")]
-    /// Text-search match operator `@@` present in Postgres
-    TsMatch(Expression<'a>, Expression<'a>),
 }
 
 impl<'a> Add for Expression<'a> {

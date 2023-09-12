@@ -3,7 +3,6 @@ mod any;
 mod average;
 mod coalesce;
 mod count;
-mod date;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 mod json_extract;
 mod lower;
@@ -14,19 +13,15 @@ mod row_number;
 mod row_to_json;
 mod stored_function;
 mod sum;
-mod text;
-#[cfg(feature = "postgresql")]
-mod to_tsquery;
-#[cfg(feature = "postgresql")]
-mod to_tsvector;
 mod upper;
+mod date;
+mod text;
+mod any;
 
 pub use aggregate_to_string::*;
-pub use any::*;
 pub use average::*;
 pub use coalesce::*;
 pub use count::*;
-pub use date::*;
 #[cfg(all(feature = "json", any(feature = "postgresql", feature = "mysql")))]
 pub use json_extract::*;
 pub use lower::*;
@@ -37,14 +32,10 @@ pub use row_number::*;
 pub use row_to_json::*;
 pub use stored_function::*;
 pub use sum::*;
-pub use text::*;
-#[cfg(feature = "postgresql")]
-pub use to_tsquery::*;
-#[cfg(feature = "postgresql")]
-pub use to_tsvector::*;
 pub use upper::*;
-
-use crate::ast::function::{stored_function::StoredFunction, to_tsquery::ToTsquery};
+pub use date::*;
+pub use text::*;
+pub use any::*;
 
 use super::{Aliasable, Expression};
 use std::borrow::Cow;
@@ -61,10 +52,6 @@ pub struct Function<'a> {
 pub(crate) enum FunctionType<'a> {
     #[cfg(all(feature = "json", feature = "postgresql"))]
     RowToJson(RowToJson<'a>),
-    #[cfg(feature = "postgresql")]
-    ToTsquery(ToTsquery<'a>),
-    #[cfg(feature = "postgresql")]
-    ToTsvector(ToTsvector<'a>),
     RowNumber(RowNumber<'a>),
     Count(Count<'a>),
     AggregateToString(AggregateToString<'a>),
@@ -94,11 +81,6 @@ impl<'a> Aliasable<'a> for Function<'a> {
         self
     }
 }
-
-#[cfg(feature = "postgresql")]
-function!(ToTsquery);
-#[cfg(feature = "postgresql")]
-function!(ToTsvector);
 
 #[cfg(all(feature = "json", feature = "postgresql"))]
 function!(RowToJson);
